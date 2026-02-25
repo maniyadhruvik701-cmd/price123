@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Data Entry</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Menu</h2>
+            </div>
+            <div class="sidebar-section">
+                <h3>Data Entry</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#" id="navEntry" class="active" onclick="showSection('entry')">Team Excel Entry</a>
+                    </li>
+                    <li><a href="#" id="navReport" onclick="showSection('report')">Reports</a></li>
+                    <li><a href="#" id="navSettings" onclick="showSection('settings')">Settings</a></li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Data Entry - Team Excel</h1>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+
+            <div class="content-area">
+                <!-- Data Entry Sheet (visible by default) -->
+                <div id="entrySection" class="section-container">
+                    <div class="data-table-section">
+                        <div class="table-header">
+                            <div class="title-group">
+                                <h2>Team Entry Sheet</h2>
+                                <p class="subtitle">Use arrow keys or Tab/Enter to navigate like Excel. Auto-saves as
+                                    you type.</p>
+                            </div>
+                            <div class="table-actions">
+                                <button type="button" class="btn btn-primary" onclick="addNewEmptyRow()">➕ New Row (Down
+                                    Arrow)</button>
+                                <button type="button" class="btn btn-secondary" onclick="exportToExcel()">📥 Export
+                                    Excel</button>
+                                <button type="button" class="btn btn-secondary" onclick="add50EmptyRows()">📊 Add 50
+                                    Rows</button>
+                                <button type="button" class="btn btn-danger" onclick="clearAllData()">🗑️ Clear
+                                    All</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;">#</th>
+                                        <th>Design No</th>
+                                        <th>AJ JIHU</th>
+                                        <th style="width: 150px;">J Date</th>
+                                        <th>AJ TN</th>
+                                        <th style="width: 150px;">T Date</th>
+                                        <th>AJ DE</th>
+                                        <th style="width: 150px;">D Date</th>
+                                        <th style="width: 60px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="entriesTableBody">
+                                    <!-- Entries added by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="paginationControls" class="pagination-container"></div>
+                        <div id="noData" class="no-data">No entries added yet</div>
+                    </div>
+                </div>
+
+                <!-- Reports Section (hidden by default) -->
+                <div id="reportSection" class="section-container hidden">
+                    <div class="report-controls-section">
+                        <div class="table-header">
+                            <div class="title-group">
+                                <h2>Design Report</h2>
+                                <p class="subtitle">Generate summary of designs within a specific date range.</p>
+                            </div>
+                        </div>
+
+                        <div class="report-filters">
+                            <div class="filter-group">
+                                <label>Start Date</label>
+                                <input type="date" id="reportStartDate" class="form-input">
+                            </div>
+                            <div class="filter-group">
+                                <label>End Date</label>
+                                <input type="date" id="reportEndDate" class="form-input">
+                            </div>
+                            <button class="btn btn-primary" onclick="generateReport()"
+                                style="width: auto; margin-top: 25px;">📊 Generate Report</button>
+                        </div>
+                    </div>
+
+                    <div id="reportResults" class="report-results-section hidden">
+                        <!-- Summary Cards -->
+                        <div class="report-cards-row">
+                            <div class="report-summary-card card-total" onclick="showReportTab('total')">
+                                <span class="summary-label">📋 Total Designs</span>
+                                <span class="summary-value" id="totalCount">0</span>
+                            </div>
+                            <div class="report-summary-card card-live" onclick="showReportTab('live')">
+                                <span class="summary-label">✅ Live Designs</span>
+                                <span class="summary-value" id="liveCount">0</span>
+                            </div>
+                            <div class="report-summary-card card-notlive" onclick="showReportTab('notlive')">
+                                <span class="summary-label">⛔ Not Live Designs</span>
+                                <span class="summary-value" id="notliveCount">0</span>
+                            </div>
+                        </div>
+
+                        <!-- Report Tabs -->
+                        <div class="report-tabs">
+                            <button class="report-tab active" id="tabTotal" onclick="showReportTab('total')">📋 Total
+                                Designs</button>
+                            <button class="report-tab" id="tabLive" onclick="showReportTab('live')">✅ Live</button>
+                            <button class="report-tab" id="tabNotlive" onclick="showReportTab('notlive')">⛔ Not
+                                Live</button>
+                        </div>
+
+                        <!-- Total Designs Table -->
+                        <div id="totalPanel" class="report-panel">
+                            <div class="data-table-section">
+                                <h3>Total Design Report</h3>
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px;">#</th>
+                                                <th>Design No</th>
+                                                <th style="width: 80px;">Entries</th>
+                                                <th>J Date</th>
+                                                <th>T Date</th>
+                                                <th>D Date</th>
+                                                <th style="width: 100px;">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="totalTableBody"></tbody>
+                                        <tfoot id="totalTableFoot"></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Designs Table -->
+                        <div id="livePanel" class="report-panel hidden">
+                            <div class="data-table-section">
+                                <h3>Live Design Report</h3>
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px;">#</th>
+                                                <th>Design No</th>
+                                                <th style="width: 80px;">Entries</th>
+                                                <th>AJ JIHU</th>
+                                                <th>AJ TN</th>
+                                                <th>AJ DE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="liveTableBody"></tbody>
+                                        <tfoot id="liveTableFoot"></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Not Live Designs Table -->
+                        <div id="notlivePanel" class="report-panel hidden">
+                            <div class="data-table-section">
+                                <h3>Not Live Design Report</h3>
+                                <div class="table-wrapper">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px;">#</th>
+                                                <th>Design No</th>
+                                                <th style="width: 80px;">Entries</th>
+                                                <th>AJ JIHU</th>
+                                                <th>AJ TN</th>
+                                                <th>AJ DE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="notliveTableBody"></tbody>
+                                        <tfoot id="notliveTableFoot"></tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
