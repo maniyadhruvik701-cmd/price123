@@ -57,7 +57,7 @@ function handleSignUp(event) {
 
 // ============= DASHBOARD EXCEL ENTRY =============
 let entries = [];
-const FIELDS = ['designno', 'ajjihu', 'jdate', 'ajtn', 'tdate', 'ajde', 'ddate'];
+const FIELDS = ['date', 'designno', 'ajjihu', 'jdate', 'ajtn', 'tdate', 'ajde', 'ddate'];
 let currentPage = 1;
 const rowsPerPage = 20;
 let firebaseListenerAttached = false;
@@ -129,6 +129,7 @@ function saveEntries() {
 function createNewRow(refresh = true) {
     const entry = {
         id: Date.now() + Math.random(),
+        date: '',
         designno: '',
         ajjihu: '',
         jdate: '',
@@ -188,6 +189,7 @@ function displayEntries() {
         return `
             <tr id="row-${entry.id}">
                 <td class="cell-index">${globalIndex + 1}</td>
+                <td><input type="date" class="excel-input" data-id="${entry.id}" data-field="date" value="${entry.date || ''}"></td>
                 <td><input type="text" class="excel-input" data-id="${entry.id}" data-field="designno" value="${entry.designno || ''}"></td>
                 <td><input type="text" class="excel-input" data-id="${entry.id}" data-field="ajjihu" value="${entry.ajjihu || ''}"></td>
                 <td><input type="date" class="excel-input" data-id="${entry.id}" data-field="jdate" value="${entry.jdate || ''}"></td>
@@ -407,6 +409,7 @@ function exportToExcel() {
     // Prepare data for Excel
     const dataForExcel = entries.map((entry, index) => ({
         '#': index + 1,
+        'Date': entry.date,
         'Design No': entry.designno,
         'AJ JIHU': entry.ajjihu,
         'J Date': entry.jdate,
@@ -432,6 +435,7 @@ function add50EmptyRows() {
     for (let i = 0; i < 50; i++) {
         entries.push({
             id: Date.now() + i + Math.random(),
+            date: '',
             designno: '',
             ajjihu: '',
             jdate: '',
@@ -502,8 +506,8 @@ function generateReport() {
         const d = (entry.designno || '').trim();
         if (!d) return;
 
-        // Only include entries with at least one date in range
-        const entryInRange = isDateInRange(entry.jdate) || isDateInRange(entry.tdate) || isDateInRange(entry.ddate);
+        // Use the main 'date' field for range filtering
+        const entryInRange = isDateInRange(entry.date);
 
         if (!allDesignMap[d]) {
             allDesignMap[d] = {
